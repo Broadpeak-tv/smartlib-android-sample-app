@@ -10,6 +10,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "https://delivery-platform.broadpeak.tv/android/repository/all"
+        }
     }
 }
 rootProject.name = "SmartLibAndroidSampleApp"
