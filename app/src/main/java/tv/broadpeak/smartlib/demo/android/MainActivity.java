@@ -17,11 +17,11 @@ public class MainActivity extends AppCompatActivity {
         initApp();
 
         findViewById(R.id.startLIVE).setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
+            startActivity(new Intent(getApplicationContext(), LiveContentActivity.class));
         });
     }
 
     public void initApp() {
-        SmartLib.getInstance().init(getApplicationContext(), "", "", "pf6.broadpeak-vcdn.com");
+        SmartLib.getInstance().init(getApplicationContext(), "http://analytics-players.broadpeak.tv/", "", "pf6.broadpeak-vcdn.com");
     }
 }

@@ -3,7 +3,7 @@ package tv.broadpeak.smartlib.demo.android;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +32,7 @@ import tv.broadpeak.smartlib.engine.manager.LoggerManager;
 import tv.broadpeak.smartlib.session.streaming.StreamingSession;
 import tv.broadpeak.smartlib.session.streaming.StreamingSessionResult;
 
-public class PlayerActivity extends AppCompatActivity {
+public class LiveContentActivity extends AppCompatActivity {
 
     private ExoPlayer mPlayer;
     private StyledPlayerView mPlayerView;
@@ -44,7 +44,9 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.activity_live_content);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Create the player
         mPlayer = new ExoPlayer.Builder(this).build();
@@ -183,6 +185,18 @@ public class PlayerActivity extends AppCompatActivity {
             mSession.stopStreamingSession();
             mPlayer.stop();
             mPlayer.release();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
