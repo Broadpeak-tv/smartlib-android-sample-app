@@ -7,6 +7,8 @@ Find all detailed steps on https://delivery-platform.broadpeak.tv/smartlib/
 ## Getting Started
 
 Open the project with Android Studio and all dependencies should be downloaded automatically.
+- MainActivity.java: SmartLib initialization, executed once when the app is starting
+- LiveContentActivity.java: Start a live content with player analytics
 
 ## Live content
 
