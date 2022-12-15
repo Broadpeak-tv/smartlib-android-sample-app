@@ -164,14 +164,17 @@ public class LiveContentActivity extends AppCompatActivity {
                         }
                     });
 
-                    // Set the media item to be played.
+                    // Set the media item to be played
                     mPlayer.setMediaSource(mediaSource);
 
-                    // Prepare the player.
+                    // Prepare the player
                     mPlayer.prepare();
 
-                    // Start the playback.
+                    // Start the playback
                     mPlayer.play();
+                } else {
+                    // Stop the session if error
+                    mSession.stopStreamingSession();
                 }
             });
         });
@@ -181,6 +184,7 @@ public class LiveContentActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        // Stop the session when closing the UI
         if (mSession != null) {
             mSession.stopStreamingSession();
             mPlayer.stop();
