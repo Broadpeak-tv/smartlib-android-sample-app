@@ -60,62 +60,6 @@ public class LiveContentActivity extends AppCompatActivity {
         // Create SmartLib session
         mSession = SmartLib.getInstance().createStreamingSession();
 
-        // Activate advertising
-        mSession.activateAdvertising();
-
-        // Ad events
-        mSession.setAdEventsListener(new AdManager.AdEventsListener() {
-            /**
-             * Triggered when ad break begin
-             *
-             * @param position Ad break begin position in millis
-             * @param duration Ad break duration in millis
-             */
-            @Override
-            public void onAdBreakBegin(long position, long duration) {
-                // Lock player controls
-            }
-
-            /**
-             * Triggered when an ad begin
-             *
-             * @param position Ad begin position in millis
-             * @param duration Ad duration in millis
-             * @param clickURL Ad click URL, empty string if unset
-             */
-            @Override
-            public void onAdBegin(long position, long duration, String clickURL) {
-                // Show ad link button if needed
-            }
-
-            /**
-             * Triggered when an ad is skippable
-             *
-             * @param offset position in the complete content where skip become allowed (in milliseconds from complete playlist)
-             * @param limit position in milliseconds where seek need to be done
-             */
-            @Override
-            public void onAdSkippable(long offset, long limit) {
-                // Show the skip message/button "skip ad in x seconds"
-            }
-
-            /**
-             * Triggered when the ad is ended, not called if skipped
-             */
-            @Override
-            public void onAdEnd() {
-                // Unlock player controls, hide ad link, hide ad skip button
-            }
-
-            /**
-             * Triggered when ad break ended, even in case of skipping
-             */
-            @Override
-            public void onAdBreakEnd() {
-                // Unlock player controls, hide ad link, hide ad skip button
-            }
-        });
-
         // Attach the player on the same thread
         mSession.attachPlayer(mPlayer);
 
