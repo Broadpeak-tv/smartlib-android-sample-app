@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartLibAndroidSampleApp"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
@@ -27,6 +28,8 @@
         </activity>
 
         <activity android:name=".LiveContentActivity" />
+
+        <activity android:name=".VodAdTrackingContentActivity" />
     </application>
 
 </manifest>

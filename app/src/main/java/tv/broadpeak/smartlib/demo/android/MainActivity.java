@@ -19,9 +19,13 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.startLIVE).setOnClickListener(view -> {
             startActivity(new Intent(getApplicationContext(), LiveContentActivity.class));
         });
+
+        findViewById(R.id.startAdTracking).setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), VodAdTrackingContentActivity.class));
+        });
     }
 
     public void initApp() {
-        SmartLib.getInstance().init(getApplicationContext(), "http://analytics-players.broadpeak.tv/", "", "pf6.broadpeak-vcdn.com");
+        SmartLib.getInstance().init(getApplicationContext(), "http://analytics-players.broadpeak.tv/", "", "pf6.broadpeak-vcdn.com,bpk67.broadpeak-vcdn.com");
     }
 }
