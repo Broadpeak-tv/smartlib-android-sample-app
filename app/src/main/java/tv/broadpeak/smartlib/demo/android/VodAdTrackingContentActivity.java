@@ -80,7 +80,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         // Listen to ad events
         mSession.setAdEventsListener(new AdManager.AdEventsListener() {
             @Override
-            public void onAdBreakBegin(long position, long duration) {
+            public void onAdBreakBegin(long position, long duration, int totalNumber) {
                 runOnUiThread(() -> {
                     // Lock player controls
                     mPlayerView.setUseController(false);
@@ -88,7 +88,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAdBegin(long position, long duration, String clickURL) {
+            public void onAdBegin(long position, long duration, String clickURL, int sequenceNumber, int totalNumber) {
                 runOnUiThread(() -> {
                     // Show ad link button if needed
                     if (clickURL.length() > 0) {
