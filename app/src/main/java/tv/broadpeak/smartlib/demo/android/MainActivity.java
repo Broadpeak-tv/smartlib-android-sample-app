@@ -26,6 +26,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initApp() {
-        SmartLib.getInstance().init(getApplicationContext(), "http://analytics-players.broadpeak.tv/", "", "pf6.broadpeak-vcdn.com,bpk67.broadpeak-vcdn.com");
+        SmartLib.getInstance().init(getApplicationContext(), "http://analytics-players.broadpeak.tv/", "", "bpk67.broadpeak-vcdn.com,stream.broadpeak.io");
     }
 }
