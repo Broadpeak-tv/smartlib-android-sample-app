@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'tv.broadpeak.smartlib.demo.android'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "tv.broadpeak.smartlib.demo.android"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -30,7 +30,7 @@ android {
 
 dependencies {
     // SmartLib dependency
-    implementation 'tv.broadpeak.smartlib:smartlib-exoplayer:04.02.05.248dacc'
+    implementation 'tv.broadpeak.smartlib:smartlib-exoplayer:04.04.02.2e6b03b'
 
     // ExoPlayer dependency
     implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
