@@ -211,7 +211,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         // Run getURL in a thread
         mExecutor.submit(() -> {
             // Start the session and retrieve the streaming URL
-            StreamingSessionResult result = mSession.getURL("https://stream.broadpeak.io/98dce83da57b03959faea861a5cd95aa/upload/4gtv/playlist.m3u8");
+            StreamingSessionResult result = mSession.getURL("https://stream.broadpeak.io/98dce83da57b03956f8ea3c5b949919a/scte35/bpk-tv/jumping/default/index.m3u8");
 
             // ExoPlayer requires main thread
             runOnUiThread(() -> {
