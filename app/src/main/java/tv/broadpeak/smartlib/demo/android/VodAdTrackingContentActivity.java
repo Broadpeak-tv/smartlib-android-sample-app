@@ -17,10 +17,12 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -111,7 +113,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
                     mPlayerView.setUseController(false);
                     mPlayerView.hideController();
 
-                    long playerPosition = (long) mSession.mPlayerAdapter.getPosition();
+                    long playerPosition = getPlayerPosition();
                     long adBreakEnd = position + duration;
                     long adBreakRemainingTime = adBreakEnd - playerPosition;
 
@@ -121,7 +123,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
 
                     adBreakTimer = new CountDownTimer(adBreakRemainingTime, 100) {
                         public void onTick(long millisUntilFinished) {
-                            long playerPosition = (long) mSession.mPlayerAdapter.getPosition();
+                            long playerPosition = getPlayerPosition();
                             int progress = (int) (((float)(playerPosition - position) / duration)*100);
                             mAdBreakProgressBar.setProgress(progress);
                         }
@@ -137,7 +139,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             public void onAdBegin(long position, long duration, String clickURL, int sequenceNumber, int totalNumber) {
                 runOnUiThread(() -> {
 
-                    long playerPosition = (long) mSession.mPlayerAdapter.getPosition();
+                    long playerPosition = getPlayerPosition();
                     long adEnd = position + duration;
                     long adRemainingTime = adEnd - playerPosition;
 
@@ -147,7 +149,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
 
                     adTimer = new CountDownTimer(adRemainingTime, 100) {
                         public void onTick(long millisUntilFinished) {
-                            long playerPosition = (long) mSession.mPlayerAdapter.getPosition();
+                            long playerPosition = getPlayerPosition();
                             int progress = (int) (((float)(playerPosition - position) / duration)*100);
                             mAdProgressBar.setProgress(progress);
                         }
@@ -165,11 +167,11 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAdSkippable(long adSkipBegin, long adEnd) {
+            public void onAdSkippable(long adSkipBegin, long adEnd, long adBreakEnd) {
                 // Show the skip message/button "skip ad in x seconds"
                 runOnUiThread(() -> {
 
-                    long remainingTime = adEnd - (long) mSession.mPlayerAdapter.getPosition();
+                    long remainingTime = adEnd - getPlayerPosition();
 
                     new CountDownTimer(remainingTime, 100) {
 
@@ -209,7 +211,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         // Run getURL in a thread
         mExecutor.submit(() -> {
             // Start the session and retrieve the streaming URL
-            StreamingSessionResult result = mSession.getURL("https://stream.broadpeak.io/98dce83da57b03956f8ea3c5b949919a/scte35/bpk-tv/jumping/default/index.m3u8");
+            StreamingSessionResult result = mSession.getURL("https://stream.broadpeak.io/98dce83da57b03959faea861a5cd95aa/upload/4gtv/playlist.m3u8");
 
             // ExoPlayer requires main thread
             runOnUiThread(() -> {
@@ -271,7 +273,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         mAdSkipButton.setEnabled(true);
         mAdSkipButton.setText("SKIP AD");
         mAdSkipButton.setOnClickListener((click) -> {
-            long adRemainingTime = adEnd - (long) mSession.mPlayerAdapter.getPosition();
+            long adRemainingTime = adEnd - getPlayerPosition();
             mPlayer.seekTo(mPlayer.getCurrentPosition() + adRemainingTime);
         });
     }
@@ -354,5 +356,31 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         cal.setTimeInMillis(time);
         String date = DateFormat.format("HH:mm:ss", cal).toString();
         return date;
+    }
+
+    private long getPlayerPosition() {
+        long playerPosition = mPlayer.getCurrentPosition();
+
+        // logPosition();
+
+        if (mPlayer.isCurrentMediaItemLive()) {
+            Timeline currentTimeline = mPlayer.getCurrentTimeline();
+
+            if (!currentTimeline.isEmpty()) {
+                // PDT configured
+                Timeline.Window window = currentTimeline.getWindow(mPlayer.getCurrentMediaItemIndex(), new Timeline.Window());
+                if (window != null) {
+                    if (window.windowStartTimeMs != C.TIME_UNSET) {
+                        return window.windowStartTimeMs + mPlayer.getCurrentPosition();
+                    }
+                }
+
+                // PDT not configured
+                playerPosition -= currentTimeline.getPeriod(mPlayer.getCurrentPeriodIndex(), new Timeline.Period())
+                        .getPositionInWindowMs();
+            }
+        }
+
+        return playerPosition;
     }
 }

@@ -30,7 +30,7 @@ android {
 
 dependencies {
     // SmartLib dependency
-    implementation 'tv.broadpeak.smartlib:smartlib-exoplayer:04.04.02.2e6b03b'
+    implementation 'tv.broadpeak.smartlib:smartlib-exoplayer:04.04.03.314e33e'
 
     // ExoPlayer dependency
     implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
