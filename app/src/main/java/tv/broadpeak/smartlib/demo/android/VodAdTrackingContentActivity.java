@@ -8,6 +8,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +35,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -41,12 +43,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import tv.broadpeak.smartlib.SmartLib;
+import tv.broadpeak.smartlib.ad.AdBreakData;
+import tv.broadpeak.smartlib.ad.AdData;
 import tv.broadpeak.smartlib.ad.AdManager;
 import tv.broadpeak.smartlib.engine.manager.LoggerManager;
 import tv.broadpeak.smartlib.session.streaming.StreamingSession;
 import tv.broadpeak.smartlib.session.streaming.StreamingSessionResult;
 
 public class VodAdTrackingContentActivity extends AppCompatActivity {
+
+    private final String TAG = VodAdTrackingContentActivity.class.getSimpleName();
 
     private ExoPlayer mPlayer;
     private StyledPlayerView mPlayerView;
@@ -107,24 +113,24 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         // Listen to ad events
         mSession.setAdEventsListener(new AdManager.AdEventsListener() {
             @Override
-            public void onAdBreakBegin(long position, long duration, int totalNumber) {
+            public void onAdBreakBegin(AdBreakData adBreakData) {
                 runOnUiThread(() -> {
                     // Lock player controls
                     mPlayerView.setUseController(false);
                     mPlayerView.hideController();
 
                     long playerPosition = getPlayerPosition();
-                    long adBreakEnd = position + duration;
+                    long adBreakEnd = adBreakData.getStartPosition() + adBreakData.getDuration();
                     long adBreakRemainingTime = adBreakEnd - playerPosition;
 
                     // Show ad break info
                     showAdBreakInfo();
-                    mAdBreakTextView.setText("Ad break: " + getDate(position) + " to " + getDate(adBreakEnd));
+                    mAdBreakTextView.setText("Ad break: " + getDate(adBreakData.getStartPosition()) + " to " + getDate(adBreakEnd));
 
                     adBreakTimer = new CountDownTimer(adBreakRemainingTime, 100) {
                         public void onTick(long millisUntilFinished) {
                             long playerPosition = getPlayerPosition();
-                            int progress = (int) (((float)(playerPosition - position) / duration)*100);
+                            int progress = (int) (((float)(playerPosition - adBreakData.getStartPosition()) / adBreakData.getDuration())*100);
                             mAdBreakProgressBar.setProgress(progress);
                         }
 
@@ -136,21 +142,20 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAdBegin(long position, long duration, String clickURL, int sequenceNumber, int totalNumber) {
+            public void onAdBegin(AdData adData, AdBreakData adBreakData) {
                 runOnUiThread(() -> {
-
                     long playerPosition = getPlayerPosition();
-                    long adEnd = position + duration;
+                    long adEnd = adData.getStartPosition() + adData.getDuration();
                     long adRemainingTime = adEnd - playerPosition;
 
                     showAdInfo();
-                    mAdTextView.setText("Ad " + (sequenceNumber+1) + "/" + totalNumber);
-                    mAdTextView.append(": " + getDate(position) + " to " + getDate(adEnd));
+                    mAdTextView.setText("Ad " + (adData.getIndex()+1) + "/" + adBreakData.getAdCount());
+                    mAdTextView.append(": " + getDate(adData.getStartPosition()) + " to " + getDate(adEnd));
 
                     adTimer = new CountDownTimer(adRemainingTime, 100) {
                         public void onTick(long millisUntilFinished) {
                             long playerPosition = getPlayerPosition();
-                            int progress = (int) (((float)(playerPosition - position) / duration)*100);
+                            int progress = (int) (((float)(playerPosition - adData.getStartPosition()) / adData.getDuration())*100);
                             mAdProgressBar.setProgress(progress);
                         }
 
@@ -160,21 +165,19 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
                     }.start();
 
                     // Show ad link button if needed
-                    if (clickURL.length() > 0) {
-                        showAdClick(clickURL);
+                    if (adData.getClickURL().length() > 0) {
+                        showAdClick(adData.getClickURL());
                     }
                 });
             }
 
             @Override
-            public void onAdSkippable(long adSkipBegin, long adEnd, long adBreakEnd) {
+            public void onAdSkippable(AdData adData, AdBreakData adBreakData, long adSkipBegin, long adEnd, long adBreakEnd) {
                 // Show the skip message/button "skip ad in x seconds"
                 runOnUiThread(() -> {
-
-                    long remainingTime = adEnd - getPlayerPosition();
+                    long remainingTime = adSkipBegin - getPlayerPosition();
 
                     new CountDownTimer(remainingTime, 100) {
-
                         public void onTick(long millisUntilFinished) {
                             mAdSkipButton.setText("SKIP AD IN " + (millisUntilFinished / 1000) + "s");
                         }
@@ -184,11 +187,10 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
                         }
                     }.start();
                 });
-
             }
 
             @Override
-            public void onAdEnd() {
+            public void onAdEnd(AdData adData, AdBreakData adBreakData) {
                 runOnUiThread(() -> {
                     // Hide ad link, hide ad skip button
                     hideAdClick();
@@ -197,13 +199,15 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAdBreakEnd() {
+            public void onAdBreakEnd(AdBreakData adBreakData) {
                 runOnUiThread(() -> {
                     // Unlock player controls, hide ad link, hide ad skip button
                     resetUI();
                 });
             }
         });
+
+        mSession.setAdDataListener(adList -> Log.v(TAG, adList.toString()));
 
         // Reset UI
         resetUI();
@@ -352,10 +356,13 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
     }
 
     private String getDate(long time) {
+        if (time < 1262300400000L) {
+            time += 1708470000000L; // to handle VOD with position starting to 0 instead of timestamp
+        }
+
         Calendar cal = Calendar.getInstance(Locale.ENGLISH);
         cal.setTimeInMillis(time);
-        String date = DateFormat.format("HH:mm:ss", cal).toString();
-        return date;
+        return DateFormat.format("HH:mm:ss", cal).toString();
     }
 
     private long getPlayerPosition() {
