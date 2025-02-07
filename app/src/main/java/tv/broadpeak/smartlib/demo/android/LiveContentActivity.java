@@ -6,28 +6,29 @@ import android.os.Looper;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.source.LoadEventInfo;
-import com.google.android.exoplayer2.source.MediaLoadData;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.dash.DashMediaSource;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
+import androidx.media3.exoplayer.source.LoadEventInfo;
+import androidx.media3.exoplayer.source.MediaLoadData;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.MediaSourceEventListener;
+import androidx.media3.ui.PlayerView;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import tv.broadpeak.smartlib.SmartLib;
-import tv.broadpeak.smartlib.ad.AdManager;
 import tv.broadpeak.smartlib.engine.manager.LoggerManager;
 import tv.broadpeak.smartlib.session.streaming.StreamingSession;
 import tv.broadpeak.smartlib.session.streaming.StreamingSessionResult;
@@ -35,7 +36,7 @@ import tv.broadpeak.smartlib.session.streaming.StreamingSessionResult;
 public class LiveContentActivity extends AppCompatActivity {
 
     private ExoPlayer mPlayer;
-    private StyledPlayerView mPlayerView;
+    private PlayerView mPlayerView;
 
     private StreamingSession mSession;
 
@@ -66,7 +67,7 @@ public class LiveContentActivity extends AppCompatActivity {
         // Run getURL in a thread
         mExecutor.submit(() -> {
             // Start the session and retrieve the streaming URL
-            StreamingSessionResult result = mSession.getURL("https://pf6.broadpeak-vcdn.com/bpk-tv/Arte/default/index.m3u8");
+            StreamingSessionResult result = mSession.getURL("https://stream.broadpeak.io/98dce83da57b03956f8ea3c5b949919a/scte35/bpk-tv/jumping/default/index.m3u8");
 
             // ExoPlayer requires main thread
             runOnUiThread(() -> {
