@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.media3.ui.PlayerView
+    <com.bitmovin.player.PlayerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
         android:id="@+id/playerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:hide_on_touch="false"
-        app:layout_constraintBottom_toTopOf="@+id/adClickButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:initialize_player="false" />
 
     <Button
         android:id="@+id/adClickButton"
@@ -29,60 +23,6 @@
         app:layout_constraintTop_toBottomOf="@id/playerView"
         android:text="CLICK AD"/>
 
-    <Button
-        android:id="@+id/adSkipButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:enabled="false"
-        app:layout_constraintStart_toEndOf="@id/adClickButton"
-        app:layout_constraintTop_toBottomOf="@id/playerView"
-        android:text="SKIP AD"/>
 
-    <ProgressBar
-        android:id="@+id/adBreakProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:progressTint="#00FF5B"
-        android:progressTintMode="multiply"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        app:layout_constraintTop_toBottomOf="@id/adClickButton"
-        app:layout_constraintStart_toStartOf="@id/adClickButton">
-    </ProgressBar>
 
-    <TextView
-        android:id="@+id/adBreakTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        app:layout_constraintStart_toEndOf="@id/adBreakProgressBar"
-        app:layout_constraintTop_toTopOf="@id/adBreakProgressBar" />
-
-    <ProgressBar
-        android:id="@+id/adProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:progressTint="#00FF5B"
-        android:progressTintMode="multiply"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/adBreakTextView"
-        >
-    </ProgressBar>
-
-    <TextView
-        android:id="@+id/adTextView"
-        android:textColor="@color/black"
-        android:layout_marginStart="4dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/adProgressBar"
-        app:layout_constraintStart_toEndOf="@id/adProgressBar" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

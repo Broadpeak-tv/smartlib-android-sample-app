@@ -1,3 +1,4 @@
+/*
 package tv.broadpeak.smartlib.demo.android;
 
 import android.os.Bundle;
@@ -148,4 +149,4 @@ public class LiveContentActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-}
+}*/

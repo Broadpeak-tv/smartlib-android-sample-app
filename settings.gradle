@@ -13,6 +13,9 @@ dependencyResolutionManagement {
         maven {
             url "https://delivery-platform.broadpeak.tv/android/repository/all"
         }
+        maven {
+            url "https://artifacts.bitmovin.com/artifactory/public-releases"
+        }
     }
 }
 rootProject.name = "SmartLibAndroidSampleApp"
