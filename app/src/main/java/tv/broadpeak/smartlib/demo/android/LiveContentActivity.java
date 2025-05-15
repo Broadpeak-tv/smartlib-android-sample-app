@@ -54,19 +54,25 @@ public class LiveContentActivity extends AppCompatActivity {
     private final Boolean USE_BPK_SMARTLIB = true;
 
     private final String ANALYTICS_ADDRESS = "http://analytics-players.broadpeak.tv";
-//    private final String ANALYTICS_ADDRESS = "";
+    //    private final String ANALYTICS_ADDRESS = "";
     private final String NANOCDN_HOST = "127.0.0.1";
 
     // BPK: ADD YOUR STREAMS HERE
     private String[] streams = new String[] {
-            "https://livesim2.dashif.org/livesim2/testpic_2s/Manifest.mpd",
-            "https://livesim2.dashif.org/livesim2/mup_30/testpic_2s/Manifest.mpd"
     };
 
     private int streamIndex = 0;
-    private Long zapStartTime = 0L;
+    private long zapStartTime = 0L;
+    private long playerLoadTime = 0L;
+    private long manifestLoadedTime = 0L;
 
-    private boolean manifestReceived = false;
+    private long D0 = 0L;
+    private long D1 = 0L;
+    private long D2 = 0L;
+    private long D3 = 0L;
+    private long D4 = 0L;
+
+    private boolean manifestLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,17 +100,31 @@ public class LiveContentActivity extends AppCompatActivity {
 
             @Override
             public void onPlaybackStateChanged(int playbackState) {
-                Log.d(TAG, "Media3 state: " + playbackState + " => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
+                Log.d(TAG, "Media3 state: " + playbackState);
             }
 
             @Override
             public void onTimelineChanged(Timeline timeline, int reason) {
-                if (!manifestReceived) {
+                if (!manifestLoaded) {
                     // BPK: this event is triggered when the manifest has been received and parsed by media3
                     // Log the timestamp at which the manifest is received ths first time of the session
-                    Log.d(TAG, "Media3 manifest received => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
-                    manifestReceived = true;
+                    manifestLoaded = true;
+                    manifestLoadedTime = java.util.Calendar.getInstance().getTimeInMillis();
+                    D3 = manifestLoadedTime - playerLoadTime;
+                    Log.d(TAG, "Media3 manifest received");
+                    Log.d(TAG, "[D3] = " + D3);
                 }
+            }
+
+            @Override
+            public void onRenderedFirstFrame() {
+                Log.d(TAG, "Media3 first frame rendered");
+                D4 = java.util.Calendar.getInstance().getTimeInMillis() - manifestLoadedTime;
+                Log.d(TAG, "[D4] = " + D4);
+
+                long zappingTime = java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime;
+                Log.d(TAG, "[D0...D4] = " + (D0+D1+D2+D3+D4));
+                Log.d(TAG, "Zapping time = " + zappingTime);
             }
         });
 
@@ -179,10 +199,11 @@ public class LiveContentActivity extends AppCompatActivity {
     private void stop() {
 
         if (mSession != null) {
-            long stopStartTime = java.util.Calendar.getInstance().getTimeInMillis();
+            long time = java.util.Calendar.getInstance().getTimeInMillis();
             Log.d(TAG, "stopStreamingSession");
             mSession.stopStreamingSession();
-            Log.d(TAG, "stopStreamingSession OK " + (java.util.Calendar.getInstance().getTimeInMillis() - stopStartTime));
+            D0 = java.util.Calendar.getInstance().getTimeInMillis() - time;
+            Log.d(TAG, "[D0] = " + D0);
         }
         runOnUiThread(() -> {
             Log.d(TAG, "Media3 stop");
@@ -194,52 +215,57 @@ public class LiveContentActivity extends AppCompatActivity {
 
         if (USE_BPK_SMARTLIB) {
             // Create SmartLib session
+            long time = java.util.Calendar.getInstance().getTimeInMillis();
             Log.d(TAG, "createStreamingSession");
             mSession = SmartLib.getInstance().createStreamingSession();
             // Attach the player on the same thread
             mSession.attachPlayer(mPlayer);
-            Log.d(TAG, "createStreamingSession OK => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
+            D1 = java.util.Calendar.getInstance().getTimeInMillis() - time;
+            Log.d(TAG, "[D1] = " + D1);
         }
 
         // Run getURL in a thread
-        mExecutor.submit(() -> {
-            String finalUrl;
+//        mExecutor.submit(() -> {
+        String finalUrl;
 
-            if (USE_BPK_SMARTLIB) {
-                // Start the session and retrieve the streaming URL
-                Log.d(TAG, "getURL => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
-                Long getUrlTime = java.util.Calendar.getInstance().getTimeInMillis();
-                StreamingSessionResult result = mSession.getURL(url);
-                Log.d(TAG, "redirectedURL => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime) + " (" + (java.util.Calendar.getInstance().getTimeInMillis() - getUrlTime) + ")");
+        if (USE_BPK_SMARTLIB) {
+            // Start the session and retrieve the streaming URL
+            long time = java.util.Calendar.getInstance().getTimeInMillis();
+            Log.d(TAG, "getURL");
+            StreamingSessionResult result = mSession.getURL(url);
+            D2 = java.util.Calendar.getInstance().getTimeInMillis() - time;
+            Log.d(TAG, "[D2] = " + D2);
 
-                if (result.isError()) {
-                    mSession.stopStreamingSession();
-                    return;
-                }
-
-                finalUrl = result.getURL();
-            } else {
-                finalUrl = url;
+            if (result.isError()) {
+                mSession.stopStreamingSession();
+                return;
             }
 
-            // ExoPlayer requires main thread
-            runOnUiThread(() -> {
+            finalUrl = result.getURL();
+        } else {
+            finalUrl = url;
+        }
 
-                // Create a data source factory.
+        // ExoPlayer requires main thread
+        runOnUiThread(() -> {
+
+            Log.d(TAG, "Media3 init");
+
+            // Create a data source factory.
 //                Log.d(TAG, "create data source => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
-                DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+            DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
 
-                // Create a media source pointing SmartLib result URL
-                MediaSource mediaSource = null;
-                if (finalUrl.contains(".mpd")) {
-                    mediaSource = new DashMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(MediaItem.fromUri(finalUrl));
-                } else if (finalUrl.contains(".m3u8")) {
-                    mediaSource = new HlsMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(MediaItem.fromUri(finalUrl));
-                }
+            // Create a media source pointing SmartLib result URL
+            MediaSource mediaSource = null;
+            if (finalUrl.contains(".mpd")) {
+                mediaSource = new DashMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(MediaItem.fromUri(finalUrl));
+            } else if (finalUrl.contains(".m3u8")) {
+                mediaSource = new HlsMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(MediaItem.fromUri(finalUrl));
+            }
 
-                // Attach media source events to the SmartLib session
+            // Attach media source events to the SmartLib session
                 /*mediaSource.addEventListener(new Handler(Looper.getMainLooper()), (MediaSourceEventListener) mSession.getListener());
                 mediaSource.addEventListener(new Handler(), new MediaSourceEventListener() {
                     @Override
@@ -255,21 +281,19 @@ public class LiveContentActivity extends AppCompatActivity {
                     }
                 });*/
 
-                // Set the media item to be played
+            // Set the media item to be played
 //                Log.d(TAG, "Media3 set media source => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
-                mPlayer.setMediaSource(mediaSource);
+            mPlayer.setMediaSource(mediaSource);
 
-                // Prepare the player
-//                Log.d(TAG, "Media3 prepare => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
-                mPlayer.prepare();
-
-                // Start the playback
-                mPlayer.setPlayWhenReady(true);
-                manifestReceived = false;
-                Log.d(TAG, "Media3 play => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
-                mPlayer.play();
-            });
+            // Prepare the player
+            playerLoadTime = java.util.Calendar.getInstance().getTimeInMillis();
+            Log.d(TAG, "Media3 prepare");
+            mPlayer.prepare();
+            mPlayer.setPlayWhenReady(true);
+            manifestLoaded = false;
+//                Log.d(TAG, "Media3 play => " + (java.util.Calendar.getInstance().getTimeInMillis() - zapStartTime));
+//                mPlayer.play();
         });
+//        });
     }
-
 }
