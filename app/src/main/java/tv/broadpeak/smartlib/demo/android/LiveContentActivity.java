@@ -67,7 +67,7 @@ public class LiveContentActivity extends AppCompatActivity {
         // Run getURL in a thread
         mExecutor.submit(() -> {
             // Start the session and retrieve the streaming URL
-            StreamingSessionResult result = mSession.getURL("https://stream.broadpeak.io/98dce83da57b03956f8ea3c5b949919a/scte35/bpk-tv/jumping/default/index.m3u8");
+            StreamingSessionResult result = mSession.getURL("https://pf7.broadpeak-vcdn.com/bpk-tv/Arte/default/index.mpd");
 
             // ExoPlayer requires main thread
             runOnUiThread(() -> {
