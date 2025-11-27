@@ -35,6 +35,8 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MediaSourceEventListener;
 import androidx.media3.ui.PlayerView;
 
+import com.google.ads.interactivemedia.pal.ConsentSettings;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Locale;

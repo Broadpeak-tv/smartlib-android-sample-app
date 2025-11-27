@@ -30,7 +30,7 @@ android {
 
 dependencies {
     // SmartLib dependency
-    implementation 'tv.broadpeak.smartlib:smartlib-media3:05.02.01.6fb0677'
+    implementation 'tv.broadpeak.smartlib:smartlib-media3:05.04.01.7a12343'
 
     // ExoPlayer dependency
     def media3_version = "1.3.1!!"
