@@ -1,23 +1,8 @@
 package tv.broadpeak.smartlib.demo.android;
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media3.common.Timeline;
 
 import com.bitmovin.player.PlayerView;
 import com.bitmovin.player.api.Player;
@@ -27,9 +12,6 @@ import com.bitmovin.player.api.source.Source;
 import com.bitmovin.player.api.source.SourceBuilder;
 import com.bitmovin.player.api.source.SourceConfig;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,10 +25,8 @@ import tv.broadpeak.smartlib.session.streaming.StreamingSessionResult;
 
 public class VodAdTrackingContentActivity extends AppCompatActivity {
 
-    private final String TAG = VodAdTrackingContentActivity.class.getSimpleName();
-
     private Player mPlayer;
-
+    private PlayerView mPlayerView;
     private StreamingSession mSession;
 
     private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
@@ -60,19 +40,17 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
 
         // Create the player
         mPlayer = new PlayerBuilder(this)
-                // .configureAnalytics(analyticsConfig)
+                .disableAnalytics()
                 .setPlayerConfig(new PlayerConfig("<your-licence-key>"))
                 .build();
 
-        // Get the player view
-        PlayerView mPlayerView = findViewById(R.id.playerView);
+        mPlayerView = findViewById(R.id.playerView);
         mPlayerView.setPlayer(mPlayer);
-        // mPlayerView.setControllerAutoShow(false);
 
         // Create SmartLib session
         mSession = SmartLib.getInstance().createStreamingSession();
 
-        // Attach the player on the same thread
+        // Attach the player
         mSession.attachPlayer(mPlayer);
 
         // Activate advertising
@@ -111,10 +89,8 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             // Start the session and retrieve the streaming URL
             StreamingSessionResult result = mSession.getURL("https://d3m98thyxwxtvo.cloudfront.net/9bf31c7ff062936a71193233516a9969/bpk-vod/voddemo/default/unity/adam/index.mpd?category=adult");
 
-            // ExoPlayer requires main thread
             runOnUiThread(() -> {
                 if (!result.isError()) {
-                    // Create a data source factory.
                     SourceConfig sourceConfig = SourceConfig.fromUrl(result.getURL());
                     Source source = new SourceBuilder(sourceConfig).build();
                     mPlayer.load(source);
@@ -127,17 +103,18 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         });
     }
 
-
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
-
-        // Stop the session when closing the UI
+        // Stop SmartLib session and detach player
         if (mSession != null) {
             mSession.stopStreamingSession();
-            mPlayer.pause();
         }
+
+        if (mPlayerView != null) {
+            mPlayerView.onDestroy(); // release view resources
+        }
+
+        super.onDestroy();
     }
 
     @Override
