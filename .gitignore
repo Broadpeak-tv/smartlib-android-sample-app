@@ -12,6 +12,7 @@
 /.idea/deploymentTargetSelector.xml
 /.idea/deviceManager.xml
 /.idea/runConfigurations.xml
+/.idea/gradle.xml
 
 .DS_Store
 /build
@@ -19,5 +20,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-.idea/misc.xml
-.idea/compiler.xml
+.idea/*
