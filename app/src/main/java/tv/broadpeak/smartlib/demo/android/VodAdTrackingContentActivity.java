@@ -35,6 +35,7 @@ import androidx.media3.exoplayer.source.MediaSourceEventListener;
 import androidx.media3.ui.PlayerView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -205,7 +206,12 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
             }
         });
 
-        mSession.setAdDataListener(adList -> Log.v(TAG, adList.toString()));
+        mSession.setAdDataListener(new AdManager.AdDataListener() {
+            @Override
+            public void onAdData(ArrayList<AdBreakData> adList) {
+                Log.v(TAG, adList.toString());
+            }
+        });
 
         // Reset UI
         resetUI();
