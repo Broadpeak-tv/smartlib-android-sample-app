@@ -2,14 +2,16 @@ plugins {
     id 'com.android.application'
 }
 
+apply from: '../config.gradle'
+
 android {
-    namespace 'tv.broadpeak.smartlib.demo.android'
-    compileSdk 34
+    namespace = 'tv.broadpeak.smartlib.demo.android'
+    compileSdk androidConfig.compileSdk
 
     defaultConfig {
         applicationId "tv.broadpeak.smartlib.demo.android"
-        minSdk 21
-        targetSdk 33
+        minSdk androidConfig.minSdk
+        targetSdk androidConfig.targetSdk
         versionCode 1
         versionName "1.0"
 
@@ -23,28 +25,27 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility androidConfig.javaVersion
+        targetCompatibility androidConfig.javaVersion
     }
 }
 
 dependencies {
     // SmartLib dependency
-    implementation 'tv.broadpeak.smartlib:smartlib-media3:06.00.06.8a08e77'
+    implementation "tv.broadpeak.smartlib:smartlib-media3:$SMARTLIB_VERSION"
 
     // ExoPlayer dependency
-    def media3_version = "1.3.1!!"
-    implementation "androidx.media3:media3-exoplayer:$media3_version"
-    implementation "androidx.media3:media3-ui:$media3_version"
-    implementation "androidx.media3:media3-exoplayer-dash:$media3_version"
-    implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
-    implementation "androidx.media3:media3-datasource-okhttp:$media3_version"
+    implementation "androidx.media3:media3-exoplayer:$androidConfig.media3Version"
+    implementation "androidx.media3:media3-ui:$androidConfig.media3Version"
+    implementation "androidx.media3:media3-exoplayer-dash:$androidConfig.media3Version"
+    implementation "androidx.media3:media3-exoplayer-hls:$androidConfig.media3Version"
+    implementation "androidx.media3:media3-datasource-okhttp:$androidConfig.media3Version"
 
 
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    androidTestImplementation "androidx.test.ext:junit:$ANDROIDX_TEST_EXT_JUNIT_VERSION"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$ANDROIDX_TEST_ESPRESSO_VERSION"
 }

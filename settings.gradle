@@ -11,7 +11,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            url "https://delivery-platform.broadpeak.tv/android/repository/all"
+            url = "https://delivery-platform.broadpeak.tv/android/repository/all"
         }
     }
 }
