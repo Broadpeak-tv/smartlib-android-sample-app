@@ -43,6 +43,7 @@ public class LiveContentActivity extends AppCompatActivity {
     private ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
     @Override
+    @androidx.media3.common.util.UnstableApi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_live_content);

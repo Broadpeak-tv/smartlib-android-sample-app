@@ -76,6 +76,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
     private CountDownTimer adTimer;
 
     @Override
+    @androidx.media3.common.util.UnstableApi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_ad_tracking_content);
@@ -304,6 +305,7 @@ public class VodAdTrackingContentActivity extends AppCompatActivity {
         mAdProgressBar.setVisibility(View.VISIBLE);
     }
 
+    @androidx.media3.common.util.UnstableApi
     private void resetUI() {
         mPlayerView.setUseController(true);
         mPlayerView.setControllerShowTimeoutMs(2000);
